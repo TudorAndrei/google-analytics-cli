@@ -14,25 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Entry point for the Google Analytics MCP server."""
+"""Entry points for the Google Analytics CLI."""
 
-from analytics_mcp.coordinator import mcp
-
-# The following imports are necessary to register the tools with the `mcp`
-# object, even though they are not directly used in this file.
-# The `# noqa: F401` comment tells the linter to ignore the "unused import"
-# warning.
-from analytics_mcp.tools.admin import info  # noqa: F401
-from analytics_mcp.tools.reporting import realtime  # noqa: F401
-from analytics_mcp.tools.reporting import core  # noqa: F401
+from analytics_cli.cli import app
 
 
 def run_server() -> None:
-    """Runs the server.
+    """Runs the CLI.
 
-    Serves as the entrypoint for the 'runmcp' command.
+    This function name is kept for backward compatibility.
     """
-    mcp.run()
+    app()
 
 
 if __name__ == "__main__":

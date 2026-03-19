@@ -16,8 +16,7 @@
 
 from typing import Any, Dict, List
 
-from analytics_mcp.coordinator import mcp
-from analytics_mcp.tools.utils import (
+from analytics_cli.tools.utils import (
     construct_property_rn,
     create_data_api_client,
     proto_to_dict,
@@ -127,9 +126,7 @@ def get_metric_filter_hints():
             ),
         )
     )
-    not_filter = data_v1beta.FilterExpression(
-        not_expression=event_count_gt_10_filter
-    )
+    not_filter = data_v1beta.FilterExpression(not_expression=event_count_gt_10_filter)
     empty_filter = data_v1beta.FilterExpression(
         filter=data_v1beta.Filter(
             field_name="purchaseRevenue",
@@ -155,7 +152,8 @@ def get_metric_filter_hints():
             expressions=[event_count_gt_10_filter, revenue_between_filter]
         )
     )
-    return f"""Example metric_filter arguments:
+    return (
+        f"""Example metric_filter arguments:
       1. A simple filter:
         {proto_to_json(event_count_gt_10_filter)}
 
@@ -171,7 +169,9 @@ def get_metric_filter_hints():
       5. An OR group filter:
         {proto_to_json(or_filter)}
 
-    """ + _FILTER_NOTES
+    """
+        + _FILTER_NOTES
+    )
 
 
 def get_dimension_filter_hints():
@@ -219,7 +219,8 @@ def get_dimension_filter_hints():
             expressions=[source_medium_filter, event_list_filter]
         )
     )
-    return f"""Example dimension_filter arguments:
+    return (
+        f"""Example dimension_filter arguments:
       1. A simple filter:
         {proto_to_json(begins_with)}
 
@@ -235,7 +236,9 @@ def get_dimension_filter_hints():
       5. An OR group filter:
         {proto_to_json(or_filter)}
 
-    """ + _FILTER_NOTES
+    """
+        + _FILTER_NOTES
+    )
 
 
 def get_order_bys_hints():
@@ -309,9 +312,6 @@ def get_order_bys_hints():
     """
 
 
-@mcp.tool(
-    title="Retrieves the custom Core Reporting dimensions and metrics for a specific property"
-)
 async def get_custom_dimensions_and_metrics(
     property_id: int | str,
 ) -> Dict[str, List[Dict[str, Any]]]:
@@ -327,9 +327,7 @@ async def get_custom_dimensions_and_metrics(
         name=f"{construct_property_rn(property_id)}/metadata"
     )
     custom_metrics = [
-        proto_to_dict(metric)
-        for metric in metadata.metrics
-        if metric.custom_definition
+        proto_to_dict(metric) for metric in metadata.metrics if metric.custom_definition
     ]
     custom_dimensions = [
         proto_to_dict(dimension)

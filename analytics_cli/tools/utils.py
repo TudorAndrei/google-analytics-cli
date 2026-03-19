@@ -12,15 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Common utilities used by the MCP server."""
+"""Common utilities used by the CLI."""
 
+import os
 from typing import Any, Dict
 
 from google.analytics import admin_v1beta, data_v1beta, admin_v1alpha
 from google.api_core.gapic_v1.client_info import ClientInfo
+from google.oauth2 import service_account
 from importlib import metadata
 import google.auth
 import proto
+from dotenv import load_dotenv
 
 
 def _get_package_version_with_fallback():
@@ -29,24 +32,45 @@ def _get_package_version_with_fallback():
     Falls back to 'unknown' if the version can't be resolved.
     """
     try:
-        return metadata.version("analytics-mcp")
+        return metadata.version("analytics-cli")
     except:
         return "unknown"
 
 
 # Client information that adds a custom user agent to all API requests.
 _CLIENT_INFO = ClientInfo(
-    user_agent=f"analytics-mcp/{_get_package_version_with_fallback()}"
+    user_agent=f"analytics-cli/{_get_package_version_with_fallback()}"
 )
 
 # Read-only scope for Analytics Admin API and Analytics Data API.
-_READ_ONLY_ANALYTICS_SCOPE = (
-    "https://www.googleapis.com/auth/analytics.readonly"
-)
+_READ_ONLY_ANALYTICS_SCOPE = "https://www.googleapis.com/auth/analytics.readonly"
+
+_DOTENV_LOADED = False
+
+
+def _load_dotenv_once() -> None:
+    """Loads environment variables from a local .env file once."""
+    global _DOTENV_LOADED
+    if _DOTENV_LOADED:
+        return
+    load_dotenv()
+    _DOTENV_LOADED = True
 
 
 def _create_credentials() -> google.auth.credentials.Credentials:
-    """Returns Application Default Credentials with read-only scope."""
+    """Returns credentials with the Analytics read-only scope.
+
+    If GOOGLE_APPLICATION_CREDENTIALS is available in .env/environment, it uses
+    that service account JSON file. Otherwise, it falls back to ADC.
+    """
+    _load_dotenv_once()
+    credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    if credentials_path:
+        return service_account.Credentials.from_service_account_file(
+            credentials_path,
+            scopes=[_READ_ONLY_ANALYTICS_SCOPE],
+        )
+
     credentials, _ = google.auth.default(scopes=[_READ_ONLY_ANALYTICS_SCOPE])
     return credentials
 
@@ -71,9 +95,7 @@ def create_data_api_client() -> data_v1beta.BetaAnalyticsDataAsyncClient:
     )
 
 
-def create_admin_alpha_api_client() -> (
-    admin_v1alpha.AnalyticsAdminServiceAsyncClient
-):
+def create_admin_alpha_api_client() -> admin_v1alpha.AnalyticsAdminServiceAsyncClient:
     """Returns a properly configured Google Analytics Admin API (alpha) async client.
     Uses Application Default Credentials with read-only scope.
     """

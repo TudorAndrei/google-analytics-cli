@@ -16,7 +16,7 @@
 
 import unittest
 
-from analytics_mcp.tools import utils
+from analytics_cli.tools import utils
 
 
 class TestUtils(unittest.TestCase):
@@ -51,13 +51,9 @@ class TestUtils(unittest.TestCase):
             utils.construct_property_rn(None)
         with self.assertRaises(ValueError, msg="Empty string should fail"):
             utils.construct_property_rn("")
-        with self.assertRaises(
-            ValueError, msg="Non-numeric string should fail"
-        ):
+        with self.assertRaises(ValueError, msg="Non-numeric string should fail"):
             utils.construct_property_rn("abc")
-        with self.assertRaises(
-            ValueError, msg="Resource name without ID should fail"
-        ):
+        with self.assertRaises(ValueError, msg="Resource name without ID should fail"):
             utils.construct_property_rn("properties/")
         with self.assertRaises(
             ValueError, msg="Resource name with non-numeric ID should fail"

@@ -61,8 +61,8 @@ coverage.xml
 
 # System test environment variables.
 system_tests/local_test_setup
+.env
 
 # Make sure a generated file isn't accidentally committed.
 pylintrc
 pylintrc.test
-

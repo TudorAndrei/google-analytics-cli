@@ -1,52 +1,47 @@
-# Google Analytics MCP Server (Experimental)
+# Google Analytics CLI (Experimental)
 
-[![PyPI version](https://img.shields.io/pypi/v/analytics-mcp.svg)](https://pypi.org/project/analytics-mcp/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![GitHub branch check runs](https://img.shields.io/github/check-runs/googleanalytics/google-analytics-mcp/main)](https://github.com/googleanalytics/google-analytics-mcp/actions?query=branch%3Amain++)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/analytics-mcp)](https://pypi.org/project/analytics-mcp/)
-[![GitHub stars](https://img.shields.io/github/stars/googleanalytics/google-analytics-mcp?style=social)](https://github.com/googleanalytics/google-analytics-mcp/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/googleanalytics/google-analytics-mcp?style=social)](https://github.com/googleanalytics/google-analytics-mcp/network/members)
 [![YouTube Video Views](https://img.shields.io/youtube/views/PT4wGPxWiRQ)](https://www.youtube.com/watch?v=PT4wGPxWiRQ)
 
-This repo contains the source code for running a local
-[MCP](https://modelcontextprotocol.io) server that interacts with APIs for
-[Google Analytics](https://support.google.com/analytics).
+This repo contains a local CLI that interacts with the
+[Google Analytics](https://support.google.com/analytics) Admin and Data APIs.
 
-Join the discussion and ask questions in the
-[🤖-analytics-mcp channel](https://discord.com/channels/971845904002871346/1398002598665257060)
-on Discord.
+GitHub: https://github.com/TudorAndrei/google-analytics-cli
 
-## Tools 🛠️
+Join the discussion and ask questions on
+[Discord](https://discord.com/channels/971845904002871346/1398002598665257060).
 
-The server uses the
+## Commands 🛠️
+
+The CLI uses the
 [Google Analytics Admin API](https://developers.google.com/analytics/devguides/config/admin/v1)
 and
 [Google Analytics Data API](https://developers.google.com/analytics/devguides/reporting/data/v1)
-to provide several
-[Tools](https://modelcontextprotocol.io/docs/concepts/tools) for use with LLMs.
+to provide a set of commands.
 
 ### Retrieve account and property information 🟠
 
-- `get_account_summaries`: Retrieves information about the user's Google
+- `account-summaries`: Retrieves information about the user's Google
   Analytics accounts and properties.
-- `get_property_details`: Returns details about a property.
-- `list_google_ads_links`: Returns a list of links to Google Ads accounts for
+- `property-details`: Returns details about a property.
+- `google-ads-links`: Returns a list of links to Google Ads accounts for
   a property.
+- `property-annotations`: Returns annotations for a property.
 
 ### Run core reports 📙
 
-- `run_report`: Runs a Google Analytics report using the Data API.
-- `get_custom_dimensions_and_metrics`: Retrieves the custom dimensions and
+- `report`: Runs a Google Analytics report using the Data API.
+- `custom-dimensions-metrics`: Retrieves the custom dimensions and
   metrics for a specific property.
 
 ### Run realtime reports ⏳
 
-- `run_realtime_report`: Runs a Google Analytics realtime report using the
+- `realtime-report`: Runs a Google Analytics realtime report using the
   Data API.
 
 ## Setup instructions 🔧
 
-✨ Watch the [Google Analytics MCP Setup
+✨ Watch the [Google Analytics CLI Setup
 Tutorial](https://youtu.be/nS8HLdwmVlY) on YouTube for a step-by-step
 walkthrough of these instructions.
 
@@ -56,7 +51,7 @@ Setup involves the following steps:
 
 1.  Configure Python.
 1.  Configure credentials for Google Analytics.
-1.  Configure Gemini.
+1.  Add credentials to a `.env` file.
 
 ### Configure Python 🐍
 
@@ -114,77 +109,68 @@ following message. You'll need this for the next step!
 Credentials saved to file: [PATH_TO_CREDENTIALS_JSON]
 ```
 
-### Configure Gemini
+### Configure `.env`
 
-1.  Install [Gemini
-    CLI](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/index.md)
-    or [Gemini Code
-    Assist](https://marketplace.visualstudio.com/items?itemName=Google.geminicodeassist).
+Copy `.env.example` to `.env` in the project root (or in your current working
+directory), and set the path to your credentials JSON:
 
-1.  Create or edit the file at `~/.gemini/settings.json`, adding your server
-    to the `mcpServers` list.
+```dotenv
+GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/credentials.json
+GOOGLE_PROJECT_ID=your-project-id
+```
 
-    Replace `PATH_TO_CREDENTIALS_JSON` with the path you copied in the previous
-    step.
+### Optional: load `.env` automatically with direnv
 
-    We also recommend that you add a `GOOGLE_CLOUD_PROJECT` attribute to the
-    `env` object. Replace `YOUR_PROJECT_ID` in the following example with the
-    [project ID](https://support.google.com/googleapi/answer/7014113) of your
-    Google Cloud project.
+If you use [direnv](https://direnv.net/), this repo includes `.envrc` with:
 
-    ```json
-    {
-      "mcpServers": {
-        "analytics-mcp": {
-          "command": "pipx",
-          "args": [
-            "run",
-            "analytics-mcp"
-          ],
-          "env": {
-            "GOOGLE_APPLICATION_CREDENTIALS": "PATH_TO_CREDENTIALS_JSON",
-            "GOOGLE_PROJECT_ID": "YOUR_PROJECT_ID"
-          }
-        }
-      }
-    }
-    ```
+```shell
+dotenv
+```
+
+Enable it once in the project directory:
+
+```shell
+direnv allow
+```
 
 ## Try it out 🥼
 
-Launch Gemini Code Assist or Gemini CLI and type `/mcp`. You should see
-`analytics-mcp` listed in the results.
+Install and run:
 
-Here are some sample prompts to get you started:
+```shell
+pip install -e .
+analytics-cli --help
+```
 
-- Ask what the server can do:
+Examples:
 
-  ```
-  what can the analytics-mcp server do?
-  ```
+- List account summaries:
 
-- Ask about a Google Analytics property
-
-  ```
-  Give me details about my Google Analytics property with 'xyz' in the name
+  ```shell
+  analytics-cli account-summaries
   ```
 
-- Prompt for analysis:
+- Get property details:
 
-  ```
-  what are the most popular events in my Google Analytics property in the last 180 days?
-  ```
-
-- Ask about signed-in users:
-
-  ```
-  were most of my users in the last 6 months logged in?
+  ```shell
+  analytics-cli property-details 123456789
   ```
 
-- Ask about property configuration:
+- Run a core report:
 
+  ```shell
+  analytics-cli report 123456789 \
+    --date-ranges '[{"start_date":"7daysAgo","end_date":"yesterday"}]' \
+    --dimension eventName \
+    --metric eventCount
   ```
-  what are the custom dimensions and custom metrics in my property?
+
+- Run a realtime report:
+
+  ```shell
+  analytics-cli realtime-report 123456789 \
+    --dimension country \
+    --metric activeUsers
   ```
 
 ## Contributing ✨
